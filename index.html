@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>習慣継続アプリ</title>
+
+  <meta name="theme-color" content="#f97316" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="習慣継続" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #fff7ed, #ffffff);
+      color: #1f2937;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 420px;
+      background: #ffffff;
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+      text-align: center;
+    }
+
+    .icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      background: #ffedd5;
+      color: #ea580c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+    }
+
+    .subtitle {
+      color: #6b7280;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 30px;
+      line-height: 1.35;
+      margin: 0 0 20px;
+    }
+
+    .days {
+      color: #ea580c;
+      font-size: 48px;
+      font-weight: 800;
+    }
+
+    .status {
+      background: #f9fafb;
+      border-radius: 18px;
+      padding: 14px;
+      font-size: 14px;
+      color: #4b5563;
+      margin-bottom: 20px;
+      min-height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.6;
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 18px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .level1-button {
+      background: #f97316;
+      color: white;
+    }
+
+    .level2-button {
+      background: #fdba74;
+      color: #7c2d12;
+    }
+
+    button:disabled {
+      background: #d1d5db;
+      color: #6b7280;
+      cursor: not-allowed;
+    }
+
+    .save-button {
+      background: #111827;
+      color: white;
+    }
+
+    .reset-button {
+      background: #ffffff;
+      color: #6b7280;
+      border: 1px solid #e5e7eb;
+    }
+
+    .settings {
+      margin-top: 24px;
+      padding: 16px;
+      border: 1px solid #f3f4f6;
+      border-radius: 18px;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    .notice {
+      color: #c2410c;
+      font-size: 14px;
+      margin-top: 12px;
+      min-height: 20px;
+      line-height: 1.6;
+    }
+
+    .last-record {
+      margin-top: 12px;
+      color: #6b7280;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .footer {
+      margin-top: 18px;
+      color: #9ca3af;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <div class="icon">&#128293;</div>
+
+    <div class="subtitle">どちらか達成すれば継続</div>
+
+    <h1 id="mainText">
+      読書が<br>
+      <span class="days">0</span> 日継続中
+    </h1>
+
+    <div class="status" id="statusText">
+      今日どちらかをタップすると、1日目として記録されます。
+    </div>
+
+    <button class="level1-button" id="level1Button">
+      100ページ読書した
+    </button>
+
+    <button class="level2-button" id="level2Button">
+      ちょっとしか読めなかったけど本は開いた
+    </button>
+
+    <div class="notice" id="notice"></div>
+
+    <div class="last-record" id="lastRecord"></div>
+
+    <section class="settings">
+      <label for="habitName">目標名</label>
+      <input id="habitName" type="text" placeholder="例：読書、運動、日記" />
+
+      <label for="level1Text">達成レベル1</label>
+      <input id="level1Text" type="text" placeholder="例：100ページ読書した" />
+
+      <label for="level2Text">達成レベル2</label>
+      <input id="level2Text" type="text" placeholder="例：本は開いた" />
+
+      <button class="save-button" id="saveButton">
+        設定を保存
+      </button>
+    </section>
+
+    <button class="reset-button" id="resetButton">
+      記録をリセット
+    </button>
+
+    <div class="footer">
+      データはこのスマホのブラウザ内に保存されます
+    </div>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "my_two_level_habit_streak_app_v1";
+
+    const mainText = document.getElementById("mainText");
+    const statusText = document.getElementById("statusText");
+    const level1Button = document.getElementById("level1Button");
+    const level2Button = document.getElementById("level2Button");
+    const notice = document.getElementById("notice");
+    const lastRecord = document.getElementById("lastRecord");
+
+    const habitNameInput = document.getElementById("habitName");
+    const level1TextInput = document.getElementById("level1Text");
+    const level2TextInput = document.getElementById("level2Text");
+
+    const saveButton = document.getElementById("saveButton");
+    const resetButton = document.getElementById("resetButton");
+
+    let state = loadState();
+
+    function loadState() {
+      const defaultState = {
+        habitName: "読書",
+        level1Text: "100ページ読書した",
+        level2Text: "ちょっとしか読めなかったけど本は開いた",
+        streak: 0,
+        lastTapDate: null,
+        lastLevel: null
+      };
+
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return defaultState;
+        return { ...defaultState, ...JSON.parse(saved) };
+      } catch {
+        return defaultState;
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function todayKey() {
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function dateFromKey(key) {
+      const [year, month, day] = key.split("-").map(Number);
+      return new Date(year, month - 1, day, 12, 0, 0, 0);
+    }
+
+    function diffDays(newerKey, olderKey) {
+      const newer = dateFromKey(newerKey);
+      const older = dateFromKey(olderKey);
+      return Math.round((newer - older) / 86400000);
+    }
+
+    function render() {
+      const today = todayKey();
+      const alreadyTappedToday = state.lastTapDate === today;
+      const habitName = state.habitName || "習慣";
+
+      mainText.innerHTML = `${habitName}が<br><span class="days">${state.streak}</span> 日継続中`;
+
+      level1Button.textContent = state.level1Text || "しっかり達成した";
+      level2Button.textContent = state.level2Text || "少しだけ達成した";
+
+      habitNameInput.value = state.habitName || "";
+      level1TextInput.value = state.level1Text || "";
+      level2TextInput.value = state.level2Text || "";
+
+      if (!state.lastTapDate) {
+        statusText.textContent = "今日どちらかをタップすると、1日目として記録されます。";
+      } else if (alreadyTappedToday) {
+        statusText.textContent = "今日は記録済みです。明日また記録できます。";
+      } else {
+        const gap = diffDays(today, state.lastTapDate);
+
+        if (gap === 1) {
+          statusText.textContent = `今日どちらかをタップすると、${state.streak + 1}日目になります。`;
+        } else if (gap > 1) {
+          statusText.textContent = `前回から${gap - 1}日空いています。今日タップすると1日目から再開します。`;
+        } else {
+          statusText.textContent = "スマホの日付設定を確認してください。";
+        }
+      }
+
+      level1Button.disabled = alreadyTappedToday;
+      level2Button.disabled = alreadyTappedToday;
+
+      if (alreadyTappedToday) {
+        level1Button.textContent = "今日は記録済み";
+        level2Button.textContent = "今日は記録済み";
+      }
+
+      if (state.lastTapDate && state.lastLevel) {
+        lastRecord.textContent = `前回の記録：${state.lastTapDate} ／ ${state.lastLevel}`;
+      } else {
+        lastRecord.textContent = "";
+      }
+    }
+
+    function recordToday(levelText) {
+      const today = todayKey();
+
+      if (state.lastTapDate === today) {
+        notice.textContent = "今日はすでに記録済みです。";
+        render();
+        return;
+      }
+
+      let nextStreak = 1;
+
+      if (state.lastTapDate) {
+        const gap = diffDays(today, state.lastTapDate);
+
+        if (gap === 1) {
+          nextStreak = Number(state.streak || 0) + 1;
+        } else {
+          nextStreak = 1;
+        }
+      }
+
+      state.streak = nextStreak;
+      state.lastTapDate = today;
+      state.lastLevel = levelText;
+
+      saveState();
+      notice.textContent = `記録しました：${levelText}`;
+      render();
+    }
+
+    function saveSettings() {
+      state.habitName = habitNameInput.value.trim() || "習慣";
+      state.level1Text = level1TextInput.value.trim() || "しっかり達成した";
+      state.level2Text = level2TextInput.value.trim() || "少しだけ達成した";
+
+      saveState();
+      notice.textContent = "設定を保存しました。";
+      render();
+    }
+
+    function resetAll() {
+      const ok = confirm("継続日数をリセットしますか？");
+
+      if (!ok) return;
+
+      state.streak = 0;
+      state.lastTapDate = null;
+      state.lastLevel = null;
+
+      saveState();
+      notice.textContent = "記録をリセットしました。";
+      render();
+    }
+
+    level1Button.addEventListener("click", function () {
+      recordToday(state.level1Text || "しっかり達成した");
+    });
+
+    level2Button.addEventListener("click", function () {
+      recordToday(state.level2Text || "少しだけ達成した");
+    });
+
+    saveButton.addEventListener("click", saveSettings);
+    resetButton.addEventListener("click", resetAll);
+
+    render();
+
+    setInterval(render, 60000);
+  </script>
+</body>
+</html>
