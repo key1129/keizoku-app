@@ -281,6 +281,12 @@
       return Math.round((newer - older) / 86400000);
     }
 
+    function updateInputFields() {
+      habitNameInput.value = state.habitName || "";
+      level1TextInput.value = state.level1Text || "";
+      level2TextInput.value = state.level2Text || "";
+    }
+
     function render() {
       const today = todayKey();
       const alreadyTappedToday = state.lastTapDate === today;
@@ -290,10 +296,6 @@
 
       level1Button.textContent = state.level1Text || "しっかり達成した";
       level2Button.textContent = state.level2Text || "少しだけ達成した";
-
-      habitNameInput.value = state.habitName || "";
-      level1TextInput.value = state.level1Text || "";
-      level2TextInput.value = state.level2Text || "";
 
       if (!state.lastTapDate) {
         statusText.textContent = "今日どちらかをタップすると、1日目として記録されます。";
@@ -305,4 +307,97 @@
         if (gap === 1) {
           statusText.textContent = `今日どちらかをタップすると、${state.streak + 1}日目になります。`;
         } else if (gap > 1) {
-          statusText
+          statusText.textContent = `前回から${gap - 1}日空いています。今日タップすると1日目から再開します。`;
+        } else {
+          statusText.textContent = "スマホの日付設定を確認してください。";
+        }
+      }
+
+      level1Button.disabled = alreadyTappedToday;
+      level2Button.disabled = alreadyTappedToday;
+
+      if (alreadyTappedToday) {
+        level1Button.textContent = "今日は記録済み";
+        level2Button.textContent = "今日は記録済み";
+      }
+
+      if (state.lastTapDate && state.lastLevel) {
+        lastRecord.textContent = `前回の記録：${state.lastTapDate} ／ ${state.lastLevel}`;
+      } else {
+        lastRecord.textContent = "";
+      }
+    }
+
+    function recordToday(levelText) {
+      const today = todayKey();
+
+      if (state.lastTapDate === today) {
+        notice.textContent = "今日はすでに記録済みです。";
+        render();
+        return;
+      }
+
+      let nextStreak = 1;
+
+      if (state.lastTapDate) {
+        const gap = diffDays(today, state.lastTapDate);
+
+        if (gap === 1) {
+          nextStreak = Number(state.streak || 0) + 1;
+        } else {
+          nextStreak = 1;
+        }
+      }
+
+      state.streak = nextStreak;
+      state.lastTapDate = today;
+      state.lastLevel = levelText;
+
+      saveState();
+      notice.textContent = `記録しました：${levelText}`;
+      render();
+    }
+
+    function saveSettings() {
+      state.habitName = habitNameInput.value.trim() || "習慣";
+      state.level1Text = level1TextInput.value.trim() || "しっかり達成した";
+      state.level2Text = level2TextInput.value.trim() || "少しだけ達成した";
+
+      saveState();
+      notice.textContent = "設定を保存しました。";
+      render();
+    }
+
+    function resetAll() {
+      const ok = confirm("継続日数をリセットしますか？");
+
+      if (!ok) return;
+
+      state.streak = 0;
+      state.lastTapDate = null;
+      state.lastLevel = null;
+
+      saveState();
+      updateInputFields();
+      notice.textContent = "記録をリセットしました。";
+      render();
+    }
+
+    level1Button.addEventListener("click", function () {
+      recordToday(state.level1Text || "しっかり達成した");
+    });
+
+    level2Button.addEventListener("click", function () {
+      recordToday(state.level2Text || "少しだけ達成した");
+    });
+
+    saveButton.addEventListener("click", saveSettings);
+    resetButton.addEventListener("click", resetAll);
+
+    updateInputFields();
+    render();
+
+    setInterval(render, 60000);
+  </script>
+</body>
+</html>
