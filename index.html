@@ -9,7 +9,9 @@
   <meta name="theme-color" content="#f97316" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="習慣継続" />
-  <link rel="apple-touch-icon" href="icon.png" />
+  
+  <link rel="icon" type="image/png" href="https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.png" />
+  <link rel="apple-touch-icon" href="https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.png" />
 
   <style>
     * {
@@ -364,6 +366,7 @@
       state.level2Text = level2TextInput.value.trim() || "少しだけ達成した";
 
       saveState();
+      updateInputFields();
       notice.textContent = "設定を保存しました。";
       render();
     }
