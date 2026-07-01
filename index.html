@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>習慣継続アプリ</title>
+  <title>アンガーマネジメント継続アプリ</title>
 
   <meta name="theme-color" content="#f97316" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="習慣継続" />
+  <meta name="apple-mobile-web-app-title" content="アンガーマネジメント" />
   
   <link rel="icon" type="image/png" href="https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.png" />
   <link rel="apple-touch-icon" href="https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.png" />
@@ -93,7 +93,7 @@
       font-size: 16px;
       font-weight: 700;
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 12px; /* ボタン同士の間隔を一律で綺麗に調整 */
     }
 
     .level1-button {
@@ -163,7 +163,7 @@
     }
 
     .footer {
-      margin-top: 18px;
+      margin-top: 24px; /* 設定欄との間隔を確保 */
       color: #9ca3af;
       font-size: 12px;
       line-height: 1.6;
@@ -178,7 +178,7 @@
     <div class="subtitle">どちらか達成すれば継続</div>
 
     <h1 id="mainText">
-      読書が<br>
+      腹を立てない（損得勘定）が<br>
       <span class="days">0</span> 日継続中
     </h1>
 
@@ -187,11 +187,15 @@
     </div>
 
     <button class="level1-button" id="level1Button">
-      100ページ読書した
+      腹を立てなかった！
     </button>
 
     <button class="level2-button" id="level2Button">
-      ちょっとしか読めなかったけど本は開いた
+      表情に出さなかった！
+    </button>
+
+    <button class="reset-button" id="resetButton">
+      リセット！明日からまた積み上げていこう☺
     </button>
 
     <div class="notice" id="notice"></div>
@@ -200,22 +204,18 @@
 
     <section class="settings">
       <label for="habitName">目標名</label>
-      <input id="habitName" type="text" placeholder="例：読書、運動、日記" />
+      <input id="habitName" type="text" placeholder="例：腹を立てない（損得勘定）" />
 
       <label for="level1Text">達成レベル1</label>
-      <input id="level1Text" type="text" placeholder="例：100ページ読書した" />
+      <input id="level1Text" type="text" placeholder="例：腹を立てなかった！" />
 
       <label for="level2Text">達成レベル2</label>
-      <input id="level2Text" type="text" placeholder="例：本は開いた" />
+      <input id="level2Text" type="text" placeholder="例：表情に出さなかった！" />
 
       <button class="save-button" id="saveButton">
         設定を保存
       </button>
     </section>
-
-    <button class="reset-button" id="resetButton">
-      記録をリセット
-    </button>
 
     <div class="footer">
       データはこのスマホのブラウザ内に保存されます
@@ -223,7 +223,7 @@
   </main>
 
   <script>
-    const STORAGE_KEY = "my_two_level_habit_streak_app_v1";
+    const STORAGE_KEY = "anger_management_streak_app_v1";
 
     const mainText = document.getElementById("mainText");
     const statusText = document.getElementById("statusText");
@@ -243,9 +243,9 @@
 
     function loadState() {
       const defaultState = {
-        habitName: "読書",
-        level1Text: "100ページ読書した",
-        level2Text: "ちょっとしか読めなかったけど本は開いた",
+        habitName: "腹を立てない（損得勘定）",
+        level1Text: "腹を立てなかった！",
+        level2Text: "表情に出さなかった！",
         streak: 0,
         lastTapDate: null,
         lastLevel: null
@@ -296,8 +296,8 @@
 
       mainText.innerHTML = `${habitName}が<br><span class="days">${state.streak}</span> 日継続中`;
 
-      level1Button.textContent = state.level1Text || "しっかり達成した";
-      level2Button.textContent = state.level2Text || "少しだけ達成した";
+      level1Button.textContent = state.level1Text || "腹を立てなかった！";
+      level2Button.textContent = state.level2Text || "表情に出さなかった！";
 
       if (!state.lastTapDate) {
         statusText.textContent = "今日どちらかをタップすると、1日目として記録されます。";
@@ -361,9 +361,9 @@
     }
 
     function saveSettings() {
-      state.habitName = habitNameInput.value.trim() || "習慣";
-      state.level1Text = level1TextInput.value.trim() || "しっかり達成した";
-      state.level2Text = level2TextInput.value.trim() || "少しだけ達成した";
+      state.habitName = habitNameInput.value.trim() || "腹を立てない（損得勘定）";
+      state.level1Text = level1TextInput.value.trim() || "腹を立てなかった！";
+      state.level2Text = level2TextInput.value.trim() || "表情に出さなかった！";
 
       saveState();
       updateInputFields();
@@ -382,16 +382,16 @@
 
       saveState();
       updateInputFields();
-      notice.textContent = "記録をリセットしました。";
+      notice.textContent = "リセットしました。明日からまた積み上げていこう☺";
       render();
     }
 
     level1Button.addEventListener("click", function () {
-      recordToday(state.level1Text || "しっかり達成した");
+      recordToday(state.level1Text || "腹を立てなかった！");
     });
 
     level2Button.addEventListener("click", function () {
-      recordToday(state.level2Text || "少しだけ達成した");
+      recordToday(state.level2Text || "表情に出さなかった！");
     });
 
     saveButton.addEventListener("click", saveSettings);
